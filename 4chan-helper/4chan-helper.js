@@ -7,7 +7,7 @@
 // @description  ctrl+-> next swf
 // @author       Neysummer2000
 // @match        https://boards.4chan.org/f/
-// @updateURL
+// @updateURL https://raw.githubusercontent.com/hunmer/Tampermonkey-Scripts/main/4chan-helper.js
 // @grant        none
 // ==/UserScript==
 
