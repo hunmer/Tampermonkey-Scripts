@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         4chan/f fitler
-// @namespace    http://tampermonkey.net/
-// @version      0.1
+// @namespace    https://greasyfork.org/zh-CN/scripts/412639-4chan-f-fitler
+// @version      0.2
 // @description  remove viewed swf
 // @description  ctrl+<- prev swf
 // @description  ctrl+-> next swf
@@ -21,14 +21,6 @@
     //console.log(g_viewed);
 
     var dom;
-    for (var url of g_viewed) {
-        dom = document.querySelector('a[href="' + url + '"]');
-        if (dom !== null) {
-            dom.parentElement.parentElement.remove();
-            //console.log("remove " + url);
-        }
-    }
-
     window.addEventListener("keydown", function(ev){
         if(g_viewing === undefined) return;
         if(ev.ctrlKey){
@@ -54,20 +46,31 @@
     });
 
     document.querySelectorAll('.flashListing td:nth-child(4) a').forEach(function(d) {
-        d.addEventListener("click", function(ev) {
-            if (g_viewed.indexOf(d.href) === -1)
+        var parent =  d.parentElement.parentElement;
+        if (g_viewed.indexOf(d.href) != -1){
+            parent.remove();
+        }else{
+            d.addEventListener("click", function(ev) {
                 g_viewed.push(d.href);
+                g_viewing = parent;
+                // console.log(g_viewing);
+                localStorage.setItem("4chan_viewed", JSON.stringify(g_viewed));
 
-            g_viewing = d.parentElement.parentElement;
-            console.log(g_viewing);
-            localStorage.setItem("4chan_viewed", JSON.stringify(g_viewed));
-            var a = document.createElement("a");
-            a.href = "javascript: window.open('" + d.href + "');";
-            a.innerText = "download";
-            a.style.cssText = "float: right; margin-right: 10px;";
-            document.getElementById('swf-embed-header').appendChild(a);
-            //console.log(d.href);
-        });
+                var iframe = document.getElementById('swf-embed-header');
+                var span = document.createElement("span");
+                span.innerText = "   " + parent.children[6].innerText;
+                iframe.appendChild(span);
+
+                var a = document.createElement("a");
+                a.target = "_blank";
+                a.href = d.href;
+                a.innerText = "download";
+                a.style.cssText = "float: right; margin-right: 10px;";
+                iframe.appendChild(a);
+                //console.log(d.href);
+
+            });
+        }
     })
 
 
