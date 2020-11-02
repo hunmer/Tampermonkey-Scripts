@@ -3,7 +3,7 @@
 // @namespace    https://github.com/hunmer/Tampermonkey-Scripts/tree/main/elements3D
 // @homepage     https://greasyfork.org/zh-CN/scripts/415198-%E5%BE%AE%E5%85%83%E7%B4%A0%E8%87%AA%E5%8A%A8%E7%AD%94%E9%A2%98
 // @version      0.2
-// @description  微元素自动答题
+// @description  微元素自动答题脚本
 // @author       neysummer
 // @match        https://www.element3ds.com/plugin.php?id=ahome_dayquestion:index
 // @match        https://www.element3ds.com/plugin.php?id=ahome_dayquestion:pop
