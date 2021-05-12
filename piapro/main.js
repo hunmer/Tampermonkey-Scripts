@@ -5,15 +5,15 @@
 // @grant       none
 // @grant       GM_addStyle
 // @version     1.0
-// @updateURL   
-// @author      -
+// @updateURL   https://raw.githubusercontent.com/hunmer/Tampermonkey-Scripts/main/piapro/main.js
+// @author      neysummer2000
 // @description 2021/5/12下午4:16:43
 // ==/UserScript==
 
 (function() {
     GM_addStyle('._active{background-color: deepskyblue;}');
 
-  
+
     var isPC = unsafeWindow.piapro_play_music == undefined;
     if (isPC) {
         unsafeWindow.piapro_play_music = function(contentId, createDate) {
@@ -41,7 +41,7 @@
         }
         registerEvent();
     }
-  
+
 
     function registerEvent() {
         var next, btnClass;
@@ -59,7 +59,7 @@
                     registerTimeupdate();
                 }
                 next.querySelector(btnClass).click();
-              
+
             }
 
         }
@@ -94,21 +94,21 @@
         var actived = document.querySelector('._active');
         if (actived != undefined) {
             actived.classList.remove('_active');
-        }else{
+        } else {
             unsafeWindow.audio.ontimeupdate = function() {
-              if(this.paused){
-                status = 'paused';
-              }else
-              if(this.ended){
-                status = 'ended';
-              }else
-              if(this.currentTime <= 0){
-                status = 'loading';
-              }else{
-                status = getTimeString(this.duration - this.currentTime);
-              }
-              document.title = status;
-          }
+                if (this.paused) {
+                    status = 'paused';
+                } else
+                if (this.ended) {
+                    status = 'ended';
+                } else
+                if (this.currentTime <= 0) {
+                    status = 'loading';
+                } else {
+                    status = getTimeString(this.duration - this.currentTime);
+                }
+                document.title = status;
+            }
         }
         if (dom != undefined) {
             dom.classList.add('_active');
