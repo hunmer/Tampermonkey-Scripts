@@ -11,7 +11,7 @@
 // ==/UserScript==
 
 (function() {
-    GM_addStyle('._active{background-color: deepskyblue;}');
+    GM_addStyle('._active{background-color: deepskyblue !important;}');
 
 
     var isPC = unsafeWindow.piapro_play_music == undefined;
@@ -55,13 +55,8 @@
 
             }
             if (next != undefined) {
-                if (isPC) {
-                    registerTimeupdate();
-                }
                 next.querySelector(btnClass).click();
-
             }
-
         }
     }
 
@@ -96,11 +91,11 @@
             actived.classList.remove('_active');
         } else {
             unsafeWindow.audio.ontimeupdate = function() {
-                if (this.paused) {
-                    status = 'paused';
-                } else
                 if (this.ended) {
                     status = 'ended';
+                } else
+                if (this.paused) {
+                    status = 'paused';
                 } else
                 if (this.currentTime <= 0) {
                     status = 'loading';
