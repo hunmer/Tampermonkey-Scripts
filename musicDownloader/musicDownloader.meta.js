@@ -5,7 +5,7 @@
 // @grant       GM_xmlhttpRequest
 // @grant       GM_download
 // @grant       unsafeWindow
-// @version     0.2
+// @version     0.1
 // @author      -
 // @license MIT
 // @updateURL   https://raw.githubusercontent.com/qsniyg/maxurl/master/userscript.meta.js
