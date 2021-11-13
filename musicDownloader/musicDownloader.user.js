@@ -7,6 +7,7 @@
 // @grant       unsafeWindow
 // @version     0.1
 // @author      -
+// @license MIT
 // @updateURL   https://raw.githubusercontent.com/hunmer/Tampermonkey-Scripts/main/musicDownloader/musicDownloader.meta.js
 // @downloadURL https://raw.githubusercontent.com/hunmer/Tampermonkey-Scripts/main/musicDownloader/musicDownloader.user.js
 // @description download spotify music with one button
