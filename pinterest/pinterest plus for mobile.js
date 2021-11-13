@@ -1,17 +1,19 @@
 // ==UserScript==
-// @name        pinterest plus for mobile
+// @name        pinterest_plus_for_mobile
 // @match       https://www.pinterest.com/*
 // @grant       GM_addStyle
 // @grant       GM_getValue
 // @grant       GM_setValue
-// @version     1.2
+// @version     1.5
 // @author      neysummer2000
 // @license MIT
-// @description 记录参考耗时（正计时，倒计时）并保存到列表，移除了一些提示
+// @description 记录参考耗时（正计时，倒计时）并保存到列表，移除了一些提示,替换精选为历史记录
 // ==/UserScript==
 GM_addStyle(`
 .Ah0.Jea.gjz.jar.rDA.zI7.iyn.Hsu,.Eqh.Jea.XiG.fZz.jx-.qDf.zI7.iyn.Hsu{display:none}
 `);
+var g_data;
+var g_list;
 var _ = {
     matchs: [],
     time: 0,
@@ -60,6 +62,15 @@ function cutString(str, s, e, d = '') {
     return d;
 }
 
+function clickList(name) {
+    for (var dd of document.querySelectorAll(".lH1.dyH.iFc.mWe.kON.pBj.zDA.IZT.CKL")) {
+        if (dd.innerText == name) {
+            dd.click();
+            return;
+        }
+    }
+}
+
 function checkRemoveButton() {
     var id = cutString(location.href, 'https://www.pinterest.com/pin/', '/');
     var btn1 = document.querySelector("#removeItem");
@@ -91,26 +102,36 @@ function checkRemoveButton() {
 
 
 setInterval(() => {
+    var id = cutString(location.href, 'https://www.pinterest.com/pin/', '/');
+    if (id != _['lastId']) {
+        _['lastId'] = id;
+        _['time'] = _['add'] ? 0 : _['minute'] * 60;
+    }
     if (!document.querySelector("#ftb")) {
         g_data = GM_getValue('data', {});
+        g_list = GM_getValue('list', []);
         var ftb = document.createElement('div');
         ftb.id = 'ftb';
-        ftb.style = 'background-color: #fff;color: black;z-index: 2;position: fixed;right: 5%;bottom: 8%;border-radius: 20px;padding: 10px;';
+        ftb.style = 'border: 1px solid black;background-color: #fff;color: black;z-index: 2;position: fixed;right: 5%;bottom: 10%;border-radius: 20px;padding: 10px;';
         ftb.onclick = () => {
-            var min = parseInt(prompt('Input minutes', _['minute']));
-            if (parseInt(min) > 0) {
-                _['add'] = false;
-
-                _['minute'] = min;
-                _['time'] = min * 60;
-                clearInterval(_['timer']);
-                _['timer'] = setInterval(() => {
-                    var t = _['time']--;
-                    ftb.innerText = formatTime(t);
-                    if (t == 0) {
-                        clearInterval(_['timer']);
-                    }
-                }, 1000);
+            var min = prompt('Input minutes', _['minute']);
+            if (min != null) {
+                min = parseInt(min);
+                _['add'] = min == 0;
+                if (_['add']) {
+                    _['time'] = 0;
+                } else {
+                    clearInterval(_['timer']);
+                    _['minute'] = min;
+                    _['time'] = min * 60;
+                    _['timer'] = setInterval(() => {
+                        var t = _['time']--;
+                        ftb.innerText = formatTime(t);
+                        if (t == 0) {
+                            clearInterval(_['timer']);
+                        }
+                    }, 1000);
+                }
             }
         }
 
@@ -123,8 +144,8 @@ setInterval(() => {
 
 
     }
-
-    if (!document.querySelector("#imageSearch")) {
+    var old = document.querySelector('[data-test-id="share-button"]');
+    if (!document.querySelector("#imageSearch") && old) {
         var btn = document.createElement('div');
         btn.id = 'imageSearch';
         btn.className = 'zI7 iyn Hsu';
@@ -132,9 +153,7 @@ setInterval(() => {
             document.querySelector('[data-test-id="visual-search-icon"]').click();
         }
         btn.innerHTML = `<div class="gjz hs0 un8 C9i"><div class="FNs zI7 iyn Hsu"><button aria-label="视觉搜索" class="rYa kVc adn yQo czT qrs BG7" tabindex="0" type="button"><div class="x8f INd _O1 gjz mQ8 OGJ YbY" style="height: 48px; width: 48px;"><svg class="gUZ pBj U9O kVc" height="20" width="20" viewBox="0 0 24 24" aria-hidden="true" aria-label="" role="img"><path d="M19 1h-3v2h3c1.103 0 2 .897 2 2v3h2V5c0-2.206-1.794-4-4-4zm2 18c0 1.103-.897 2-2 2h-3v2h3c2.206 0 4-1.794 4-4v-3h-2zM3 19v-3H1v3c0 2.206 1.794 4 4 4h3v-2H5c-1.103 0-2-.897-2-2zM3 5c0-1.103.897-2 2-2h3V1H5C2.794 1 1 2.794 1 5v3h2zm6 6.5C9 10.122 10.122 9 11.5 9s2.5 1.122 2.5 2.5-1.122 2.5-2.5 2.5S9 12.878 9 11.5zm7.5 6.5a1.502 1.502 0 0 0 1.061-2.561l-2.012-2.011A4.444 4.444 0 0 0 16 11.5C16 9.019 13.981 7 11.5 7S7 9.019 7 11.5 9.019 16 11.5 16c.693 0 1.341-.17 1.928-.451l2.011 2.012c.293.293.677.439 1.061.439z"></path></svg></div></button></div></div>`;
-        var old = document.querySelector('[data-test-id="share-button"]');
         old.parentNode.insertBefore(btn, old.nextSibling);
-
         checkRemoveButton();
     }
 
@@ -164,14 +183,14 @@ setInterval(() => {
             btn.onclick = () => {
                 var list = document.createElement('div');
                 list.id = 'historyList';
-                list.style = 'text-align: center;max-height: 450px;background-color: #fff;display: grid;grid-template-columns: repeat(3, 33.33%);grid-template-rows: repeat(3, 30)';
+                list.style = 'text-align: center;max-height: 450px;background-color: #fff;display: grid;grid-template-columns: repeat(2, 50%);';
                 for (var id in g_data) {
                     var data = g_data[id];
                     var d = document.createElement('div');
                     d.style = "padding: 10px;margin-bottom: 10px;position: relative;";
                     var date = new Date();
                     // <span style="background-color: #fff;color: black;position: absolute;right: 5;top: 5;border-radius: 20px;padding: 10px;">'+(date.getMonth() + 1 + '/' + date.getDate()) +'</span>
-                    d.innerHTML = '<img style="height:150px;" src="' + data.img.replace('736x', '236x') + '" data-id="' + id + '"><span style="display: block;text-align: center;">' + (date.getMonth() + 1 + '/' + date.getDate()) + ' ' + formatTime(data.time) + '</span>';
+                    d.innerHTML = '<img style="height:150px;padding: 10px;" src="' + data.img.replace('736x', '236x') + '" data-id="' + id + '"><span style="display: block;text-align: center;">' + (date.getMonth() + 1 + '/' + date.getDate()) + ' ' + formatTime(data.time) + '</span>';
                     d.onclick = (e) => {
                         location.href = 'https://www.pinterest.com/pin/' + e.srcElement.getAttribute('data-id');
                     }
@@ -205,9 +224,57 @@ setInterval(() => {
     }
 
     if (location.href.substr(-7) == '/repin/') {
+        if (!document.querySelector("#recentList")) {
+            console.log(document.querySelectorAll(".CCY.czT.DUt.DI9.BG7").length);
+            if (document.querySelectorAll(".CCY.czT.DUt.DI9.BG7").length > 0) {
+                var par;
+
+                var index = 0;
+                for (var d of document.querySelectorAll(".CCY.czT.DUt.DI9.BG7")) {
+                    if (index < 3) {
+                        if (!par) par = d.parentElement;
+                        d.remove();
+                    } else {
+                        d.addEventListener('click', (e) => {
+                            var name = e.srcElement.innerText;
+                            var i = g_list.indexOf(name);
+                            if (i != -1) {
+                                g_list.splice(i, 1);
+                            }
+                            g_list.splice(0, 0, name);
+                            if (g_list.length > 9) {
+                                g_list.pop();
+                            }
+                            GM_setValue('list', g_list);
+                        })
+                    }
+                    index++;
+                }
+                if (par) {
+                    par.id = 'recentList';
+                    par.style.cssText = 'background-color: #fff;z-index: 999;display: grid;grid-template-columns: repeat(3, 33.33%);grid-template-rows: repeat(3, 30)';
+                    for (var name of g_list) {
+                        var d = document.createElement('div');
+                        d.style = "text-align: center;padding: 10px;margin-bottom: 10px;";
+                        d.innerText = name;
+                        d.onclick = (e) => {
+                            clickList(e.srcElement.innerText);
+
+                        }
+                        par.append(d);
+
+                    }
+                }
+            }
+
+        }
+
+
         if (!document.querySelector("#searchInput")) {
             var con = document.querySelector(".qiB");
+            if (!con) return;
             var search = document.createElement('input');
+
             search.id = 'searchInput';
             search.placeholder = 'search';
             search.style = 'width: 90%;display: block;margin: 0 auto;padding: 10px;';
@@ -233,24 +300,18 @@ setInterval(() => {
                     d.style = "text-align: center;padding: 10px;margin-bottom: 10px;";
                     d.innerText = dom.innerText;
                     d.onclick = (e) => {
-                        var name = e.srcElement.innerText;
+                        clickList(e.srcElement.innerText);
 
-                        for (var dd of document.querySelectorAll(".lH1.dyH.iFc.mWe.kON.pBj.zDA.IZT.CKL")) {
-                            if (dd.innerText == name) {
-                                dd.click();
-                                return;
-                            }
-                        }
                     }
                     list.append(d);
                 }
             }
-            con.children[0].appendChild(input);
+            document.querySelector('.XiG.fZz.hUC.zI7.iyn.Hsu').appendChild(search);
 
             var list = document.createElement('div');
             list.id = 'searchResult';
             list.style = 'background-color: #fff;z-index: 999;display: grid;grid-template-columns: repeat(3, 33.33%);grid-template-rows: repeat(3, 30)';
-            con.children[0].appendChild(list);
+            document.querySelector('.XiG.fZz.hUC.zI7.iyn.Hsu').appendChild(list);
 
 
         }
