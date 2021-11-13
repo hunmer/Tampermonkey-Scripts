@@ -5,8 +5,10 @@
 // @grant       GM_xmlhttpRequest
 // @grant       GM_download
 // @grant       unsafeWindow
-// @version     1.0
+// @version     0.1
 // @author      -
+// @updateURL   https://raw.githubusercontent.com/hunmer/Tampermonkey-Scripts/main/musicDownloader/musicDownloader.meta.js
+// @downloadURL https://raw.githubusercontent.com/hunmer/Tampermonkey-Scripts/main/musicDownloader/musicDownloader.user.js
 // @description download spotify music with one button
 // ==/UserScript==
 var running;
@@ -57,7 +59,6 @@ var timer = setInterval(() => {
                 },
                 onerror: function() {
                     setResult('fetch error');
-
                 }
             })
 
